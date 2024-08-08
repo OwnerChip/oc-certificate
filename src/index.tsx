@@ -59,22 +59,28 @@ const styles = StyleSheet.create({
     },
     traitsImageSection: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 24,
+        justifyContent: 'space-around',
+        gap: 12,
         paddingLeft: 24,
     },
+    traitsContainer: {
+        flexDirection: 'column',
+    },
     traits: {
+        // flexGrow: 1,
         border: '1px solid rgb(42, 89, 146)',
         padding: 12,
         flexDirection: "column",
-        gap: 24,
+        gap: 12,
         fontSize: 14,
         fontFamily: 'Helvetica-Bold',
         fontWeight: 'bold',
-        maxHeight: 200,
+        maxWidth: 290,
+        maxHeight: 265,
+        alignSelf: "stretch"
     },
     traitsTitle: {
-        fontSize: 16,
+        fontSize: 14,
         fontFamily: "Ubuntu",
         fontWeight: 'bold',
     },
@@ -83,28 +89,55 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         gap: 12,
         fontWeight: "normal",
-        fontSize: 16
+        fontSize: 14
     },
     traitTypes: {
         flexDirection: "column",
         gap: 4,
+        maxLines: 1,
+        minWidth: 80,
     },
     traitType: {},
     traitValues: {
         flexDirection: "column",
         gap: 4,
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        maxLines: 1
     },
-    traitValue: {},
+    traitValue: {
+        maxLines: 1,
+        textOverflow: 'ellipsis',
+    },
+    descriptionContainer: {
+        flexDirection: 'column',
+        gap: 4,
+    },
+    description: {
+        fontSize: 10,
+        fontFamily: 'Ubuntu',
+        fontWeight: 'normal',
+        maxLines: 3,
+        textOverflow: 'ellipsis',
+    },
+    moreLink: {
+        fontSize: 10,
+        fontFamily: 'Ubuntu',
+        textAlign: 'center',
+        fontWeight: 'normal',
+        color: 'black',
+        textDecoration: "none"
+    },
     image: {
         width: 236,
         paddingRight: 0,
         maxHeight: 265,
         objectFit: 'contain',
-        objectPosition: 'right',
+        objectPosition: 'center',
         backgroundColor: 'rgb(255, 255, 255)',
-        paddingLeft: 16,
-        paddingTop: 32,
-        paddingBottom: 32,
+        paddingLeft: 12,
+        paddingTop: 12,
+        paddingBottom: 12,
     },
     detailsQrCodesSection: {
         flexDirection: 'row',
@@ -191,7 +224,8 @@ export const CertificateDocument = (data: {
     itemQrCode: string;
     blockchainExplorerUrl: string;
     blockchainQrCode: string;
-    certificateBg: any,
+    certificateBg: any;
+    description: string;
 }) => {
     return (
         <Document>
@@ -211,36 +245,61 @@ export const CertificateDocument = (data: {
                     </View>
                     <View style={styles.traitsImageSection}>
 
-                        <View style={styles.traits}>
-                            <Text style={styles.traitsTitle}>
-                                {data.title}
-                            </Text>
+                        <View style={styles.traitsContainer}>
+                            <View style={styles.traits}>
+                                <Text style={styles.traitsTitle}>
+                                    {data.title}
+                                </Text>
 
-                            <View style={styles.traitsRow}>
-                                <View style={styles.traitTypes}>
-                                    {data.traits.map((trait) => {
-                                        return (
-                                            <Text key={trait.trait_type}>
-                                                {trait.trait_type}:
-                                            </Text>
-                                        );
-                                    })}
+                                <View style={styles.traitsRow}>
+                                    <View style={styles.traitTypes}>
+                                        {data.traits.map((trait) => {
+                                            return (
+                                                <Text key={trait.trait_type}>
+                                                    {trait.trait_type}:
+                                                </Text>
+                                            );
+                                        })}
+                                    </View>
+
+                                    <View style={styles.traitValues}>
+                                        {data.traits.map((trait) => {
+                                            return (
+                                                <Text
+                                                    key={trait.value}
+                                                    style={styles.traitValue}
+                                                >
+                                                    {trait.value}
+                                                </Text>
+                                            );
+                                        })}
+                                    </View>
                                 </View>
 
-                                <View style={styles.traitValues}>
-                                    {data.traits.map((trait) => {
-                                        return (
-                                            <Text key={trait.value}>
-                                                {trait.value}
-                                            </Text>
-                                        );
-                                    })}
+                                <View style={styles.descriptionContainer}>
+                                    <Text style={{
+                                        ...styles.description,
+                                        // calculate max lines based on number of traits
+                                        maxLines: 17 - data.traits.length * 2,
+                                    }}>
+                                        {data.description}
+                                    </Text>
+                                    {data.description.length > 300 && (
+                                        <Link style={styles.moreLink} href={data.itemUri}>
+                                            (See more using the link or QR Code)
+                                        </Link>)
+                                    }
                                 </View>
+
+
                             </View>
-
                         </View>
 
-                        <Image src={data.imageUrl} style={styles.image}/>
+
+                        <View style={styles.traitsContainer}>
+                            <Image src={data.imageUrl} style={styles.image}/>
+                        </View>
+
                     </View>
 
                     <View style={styles.detailsQrCodesSection}>
