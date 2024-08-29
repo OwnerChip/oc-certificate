@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
         paddingRight: 48,
     },
     qrCodeItem: {
+        position: 'relative',
         flexDirection: 'column',
         gap: 4,
     },
@@ -196,7 +197,20 @@ const styles = StyleSheet.create({
         transform: "scale(0.5)",
         justifyContent: 'center',
         alignItems: 'center',
-    }
+    },
+    draft_label: {
+        position: 'absolute',
+        top: 270,
+        left: 0,
+        right: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'gray',
+        opacity: 0.15,
+        fontSize: 180,
+        fontFamily: 'Ubuntu',
+        transform: "rotate(-45deg)",
+    },
 });
 
 
@@ -233,8 +247,6 @@ export const CertificateDocument = (data: {
 
     const descriptionMaxLines = 13 - rowsOccupiedByTraits
 
-    // Calculate max lines based on description length.
-    // take into account the next line breaks
     let descriptionLines = 0;
 
     for (let i = 0; i < data.description.length; i++) {
@@ -425,16 +437,36 @@ export const CertificateDocument = (data: {
                         <View style={styles.qrCodesSection}>
                             <View style={styles.qrCodeItem}>
                                 <Image src={data.itemQrCode}/>
-                                <Link style={styles.qrCodeLinkStyle} src={data.itemUri}>
-                                    CLICK HERE to view item details & access digital content
-                                </Link>
+                                {
+                                    data.draft ? (
+                                        <Text style={styles.qrCodeLinkStyle}>
+                                            DRAFT
+                                        </Text>
+                                    ) : (
+                                        <Link style={styles.qrCodeLinkStyle} src={data.itemUri}>
+                                            CLICK HERE to view item details & access digital content
+                                        </Link>
+                                    )
+                                }
+
+
                             </View>
 
                             <View style={styles.qrCodeItem}>
                                 <Image src={data.blockchainQrCode}/>
-                                <Link style={styles.qrCodeLinkStyle} src={data.blockchainExplorerUrl}>
-                                    CLICK HERE to view entry on Blockchain
-                                </Link>
+
+                                {
+                                    data.draft ? (
+                                        <Text style={styles.qrCodeLinkStyle}>
+                                            DRAFT
+                                        </Text>
+                                    ) : (
+                                        <Link style={styles.qrCodeLinkStyle} src={data.blockchainExplorerUrl}>
+                                            CLICK HERE to view entry on Blockchain
+                                        </Link>
+                                    )
+                                }
+
                             </View>
                         </View>
 
@@ -468,12 +500,24 @@ export const CertificateDocument = (data: {
                         </Svg>
                     </View>
 
+                    {
+                        data.draft &&
+                        (<View style={styles.draft_label}>
+                            <Text>
+                                DRAFT
+                            </Text>
+                        </View>)
+                    }
+
+
                 </View>
 
                 <Image
                     src={data.certificateBg.src}
                     style={{...styles.pageBackground}}
                 />
+
+
             </Page>
         </Document>
     );
