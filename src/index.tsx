@@ -94,21 +94,19 @@ const styles = StyleSheet.create({
     traitTypes: {
         flexDirection: "column",
         gap: 4,
+        minWidth: 130,
         maxLines: 1,
-        minWidth: 80,
+        textOverflow: 'ellipsis',
     },
     traitType: {},
     traitValues: {
         flexDirection: "column",
         gap: 4,
-        textOverflow: 'ellipsis',
-        overflow: 'hidden',
-        maxLines: 1
-    },
-    traitValue: {
+        minWidth: 130,
         maxLines: 1,
         textOverflow: 'ellipsis',
     },
+    traitValue: {},
     descriptionContainer: {
         flexDirection: 'column',
         gap: 4,
@@ -208,6 +206,7 @@ export const CertificateDocument = (data: {
         trait_type: string;
         value: string;
     }[],
+    draft: boolean;
     creationDate: string;
     blockchainName: string;
     collectionName: string;
@@ -227,6 +226,29 @@ export const CertificateDocument = (data: {
     certificateBg: any;
     description: string;
 }) => {
+    const traitRowMaxChars = 32;
+    const rowsOccupiedByTraits = data.traits.length;
+
+    const descriptionRowMaxChars = 50;
+
+    const descriptionMaxLines = 13 - rowsOccupiedByTraits
+
+    // Calculate max lines based on description length.
+    // take into account the next line breaks
+    let descriptionLines = 0;
+
+    for (let i = 0; i < data.description.length; i++) {
+        if (data.description[i] === '\n') {
+            descriptionLines++;
+
+        } else if (i % descriptionRowMaxChars === 0) {
+            descriptionLines++;
+
+        }
+    }
+
+    const descriptionShowMore = descriptionLines > descriptionMaxLines;
+
     return (
         <Document>
             <Page size="A4" style={styles.page}>
@@ -254,9 +276,11 @@ export const CertificateDocument = (data: {
                                 <View style={styles.traitsRow}>
                                     <View style={styles.traitTypes}>
                                         {data.traits.map((trait) => {
+                                            // evenly distribute the traits
                                             return (
                                                 <Text key={trait.trait_type}>
-                                                    {trait.trait_type}:
+                                                    {trait.trait_type.substring(0, Math.min(traitRowMaxChars / 2, trait.trait_type.length))}
+                                                    {trait.trait_type.length > traitRowMaxChars / 2 ? '...' : ''}:
                                                 </Text>
                                             );
                                         })}
@@ -269,7 +293,8 @@ export const CertificateDocument = (data: {
                                                     key={trait.value}
                                                     style={styles.traitValue}
                                                 >
-                                                    {trait.value}
+                                                    {trait.value.substring(0, Math.min(traitRowMaxChars / 2, trait.value.length))}
+                                                    {trait.value.length > traitRowMaxChars / 2 ? '...' : ''}
                                                 </Text>
                                             );
                                         })}
@@ -280,11 +305,11 @@ export const CertificateDocument = (data: {
                                     <Text style={{
                                         ...styles.description,
                                         // calculate max lines based on number of traits
-                                        maxLines: 17 - data.traits.length * 2,
+                                        maxLines: descriptionMaxLines,
                                     }}>
                                         {data.description}
                                     </Text>
-                                    {data.description.length > 300 && (
+                                    {descriptionShowMore && (
                                         <Link style={styles.moreLink} href={data.itemUri}>
                                             (See more using the link or QR Code)
                                         </Link>)
