@@ -159,6 +159,12 @@ const styles = StyleSheet.create({
         gap: 4,
         fontFamily: 'Ubuntu',
     },
+    linkStyle: {
+        color: "rgb(0, 0, 0)",
+        fontSize: 10,
+        fontFamily: 'Ubuntu',
+        textDecoration: "none"
+    },
     detailsValues: {
         flexDirection: "column",
         gap: 4,
@@ -425,9 +431,9 @@ export const CertificateDocument = (data: {
                                             This copy was generated on: {data.currentTimestamp}
                                         </Text>
 
-                                        <Text>
+                                        <Link style={styles.linkStyle} href={"www.ownerchip.com/certificates"}>
                                             Learn more about digital certificates at www.ownerchip.com/certificates
-                                        </Text>
+                                        </Link>
                                     </View>
                                 </View>
                             </View>
