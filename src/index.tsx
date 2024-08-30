@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     traitsImageSection: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        gap: 12,
+        gap: 8,
         paddingLeft: 24,
     },
     traitsContainer: {
@@ -89,21 +89,28 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         gap: 12,
         fontWeight: "normal",
-        fontSize: 14
+        fontSize: 14,
+        width: 270,
+    },
+    traitsColumn: {
+        flexDirection: 'column',
+        gap: 2,
     },
     traitTypes: {
         flexDirection: "column",
         gap: 4,
-        minWidth: 130,
-        maxLines: 1,
+        minWidth: 120,
+        // maxLines: 1,
+        flex: 1,
         textOverflow: 'ellipsis',
     },
     traitType: {},
     traitValues: {
         flexDirection: "column",
         gap: 4,
-        minWidth: 130,
-        maxLines: 1,
+        minWidth: 120,
+        // maxLines: 1,
+        flex: 1,
         textOverflow: 'ellipsis',
     },
     traitValue: {},
@@ -219,13 +226,139 @@ const styles = StyleSheet.create({
     },
 });
 
+interface TraitRenderData {
+    traitType: string;
+    traitTypeRenderString: string;
+    traitValue: string;
+    traitValueRenderString: string;
+    rowsOccupied: number;
+}
+
+interface TraitData {
+    trait_type: string;
+    value: string
+}
+
+const descriptionLimitLines = 20;
+const traitRowMaxChars = 30;
+const traitMaxLines = 3;
+
+
+// TODO: This function needs to be refactored
+const calculateTraitRenderData = (data: TraitData[]) => {
+    const traitsRenderData: TraitRenderData[] = [];
+    let rowsOccupiedByTraits = 0;
+
+    for (let i = 0; i < data.length; i++) {
+        const trait = data[i];
+        const col = traitRowMaxChars / 2;
+        // take into account that the full the word cannot be broken into more than 1 line
+        let traitTypeLines = 0;
+        const traitTypeWords = trait.trait_type.split(' ');
+
+        let currentRowCharactersOccupied = 0;
+        let traitTypeRenderString = '';
+        for (let j = 0; j < traitTypeWords.length; j++) {
+            const word = traitTypeWords[j];
+            if (currentRowCharactersOccupied + word.length > col) {
+                traitTypeLines++;
+                currentRowCharactersOccupied = 0;
+            }
+            currentRowCharactersOccupied += word.length;
+
+            if (traitTypeLines < traitMaxLines) {
+                traitTypeRenderString += word + ' ';
+            }
+            if (traitTypeLines >= traitMaxLines) {
+                traitTypeRenderString = traitTypeRenderString.trim() + '...';
+                break;
+            }
+        }
+
+        if (currentRowCharactersOccupied > 0) {
+            traitTypeLines++;
+        }
+
+        let traitValueLines = 0;
+        const traitValueWords = trait.value.split(' ');
+        currentRowCharactersOccupied = 0;
+        let traitValueRenderString = '';
+        for (let j = 0; j < traitValueWords.length; j++) {
+            const word = traitValueWords[j];
+            if (currentRowCharactersOccupied + word.length > col) {
+                traitValueLines++;
+                currentRowCharactersOccupied = 0;
+            }
+            currentRowCharactersOccupied += word.length;
+
+            if (traitValueLines < traitMaxLines) {
+                traitValueRenderString += word + ' ';
+            }
+            if (traitValueLines >= traitMaxLines) {
+                traitValueRenderString = traitValueRenderString.trim() + '...';
+                break;
+            }
+        }
+
+        if (currentRowCharactersOccupied > 0) {
+            traitValueLines++;
+        }
+
+        const occupiedRows = Math.min(traitMaxLines, Math.max(traitTypeLines, traitValueLines))
+        rowsOccupiedByTraits += occupiedRows;
+
+        if (descriptionLimitLines - rowsOccupiedByTraits * 2 < 0) {
+            break;
+        }
+
+        traitsRenderData.push({
+            traitType: trait.trait_type,
+            traitTypeRenderString: traitTypeRenderString.trim(),
+            traitValue: trait.value,
+            traitValueRenderString: traitValueRenderString.trim(),
+            rowsOccupied: occupiedRows,
+        });
+    }
+
+    return {traitsRenderData, rowsOccupiedByTraits};
+}
+
+// TODO: This function needs to be refactored
+const calculateDescriptionRenderData = (description: string, rowsOccupiedByTraits: number) => {
+    const descriptionRowMaxChars = 50;
+
+    const descriptionMaxLines = descriptionLimitLines - rowsOccupiedByTraits * 2
+
+    let descriptionLines = 0;
+    let descriptionShowMore = false;
+
+    const descriptionWords = description.split(' ');
+    let currentRowCharactersOccupied = 0;
+    let descriptionRenderString = '';
+    for (let i = 0; i < descriptionWords.length; i++) {
+        const word = descriptionWords[i];
+        if (currentRowCharactersOccupied + word.length > descriptionRowMaxChars) {
+            descriptionLines++;
+            currentRowCharactersOccupied = 0;
+        }
+        currentRowCharactersOccupied += word.length;
+
+        if (descriptionLines < traitMaxLines) {
+            descriptionRenderString += word + ' ';
+        }
+        if (descriptionLines >= traitMaxLines) {
+            descriptionRenderString = descriptionRenderString.trim() + '...';
+            descriptionShowMore = true;
+            break;
+        }
+    }
+
+    return {descriptionRenderString, descriptionShowMore, descriptionMaxLines};
+}
 
 export const CertificateDocument = (data: {
     title: string;
-    traits: {
-        trait_type: string;
-        value: string;
-    }[],
+    traits: TraitData[],
     draft: boolean;
     creationDate: string;
     blockchainName: string;
@@ -246,26 +379,13 @@ export const CertificateDocument = (data: {
     certificateBg: any;
     description: string;
 }) => {
-    const traitRowMaxChars = 32;
-    const rowsOccupiedByTraits = data.traits.length;
 
-    const descriptionRowMaxChars = 50;
-
-    const descriptionMaxLines = 13 - rowsOccupiedByTraits
-
-    let descriptionLines = 0;
-
-    for (let i = 0; i < data.description.length; i++) {
-        if (data.description[i] === '\n') {
-            descriptionLines++;
-
-        } else if (i % descriptionRowMaxChars === 0) {
-            descriptionLines++;
-
-        }
-    }
-
-    const descriptionShowMore = descriptionLines > descriptionMaxLines;
+    const {traitsRenderData, rowsOccupiedByTraits} = calculateTraitRenderData(data.traits);
+    const {
+        descriptionRenderString,
+        descriptionShowMore,
+        descriptionMaxLines
+    } = calculateDescriptionRenderData(data.description, rowsOccupiedByTraits);
 
     return (
         <Document>
@@ -291,32 +411,25 @@ export const CertificateDocument = (data: {
                                     {data.title}
                                 </Text>
 
-                                <View style={styles.traitsRow}>
-                                    <View style={styles.traitTypes}>
-                                        {data.traits.map((trait) => {
-                                            // evenly distribute the traits
+                                <View style={styles.traitsColumn}>
+                                    {
+                                        traitsRenderData.map((trait) => {
                                             return (
-                                                <Text key={trait.trait_type}>
-                                                    {trait.trait_type.substring(0, Math.min(traitRowMaxChars / 2, trait.trait_type.length))}
-                                                    {trait.trait_type.length > traitRowMaxChars / 2 ? '...' : ''}:
-                                                </Text>
+                                                <View style={styles.traitsRow} key={trait.traitType}>
+                                                    <View style={styles.traitTypes}>
+                                                        <Text style={styles.traitType}>
+                                                            {trait.traitTypeRenderString}:
+                                                        </Text>
+                                                    </View>
+                                                    <View style={styles.traitValues}>
+                                                        <Text style={styles.traitValue}>
+                                                            {trait.traitValueRenderString}
+                                                        </Text>
+                                                    </View>
+                                                </View>
                                             );
-                                        })}
-                                    </View>
-
-                                    <View style={styles.traitValues}>
-                                        {data.traits.map((trait) => {
-                                            return (
-                                                <Text
-                                                    key={trait.value}
-                                                    style={styles.traitValue}
-                                                >
-                                                    {trait.value.substring(0, Math.min(traitRowMaxChars / 2, trait.value.length))}
-                                                    {trait.value.length > traitRowMaxChars / 2 ? '...' : ''}
-                                                </Text>
-                                            );
-                                        })}
-                                    </View>
+                                        })
+                                    }
                                 </View>
 
                                 <View style={styles.descriptionContainer}>
@@ -325,7 +438,7 @@ export const CertificateDocument = (data: {
                                         // calculate max lines based on number of traits
                                         maxLines: descriptionMaxLines,
                                     }}>
-                                        {data.description}
+                                        {descriptionRenderString}
                                     </Text>
                                     {descriptionShowMore && (
                                         <Link style={styles.moreLink} href={data.itemUri}>
