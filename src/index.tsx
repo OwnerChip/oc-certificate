@@ -544,9 +544,13 @@ export const CertificateDocument = (data: {
                                             This copy was generated on: {data.currentTimestamp}
                                         </Text>
 
-                                        <Link style={styles.linkStyle} href={"www.ownerchip.com/certificates"}>
-                                            Learn more about digital certificates at www.ownerchip.com/certificates
-                                        </Link>
+                                        <Text style={styles.linkStyle}>
+                                            Learn more about digital certificates at
+                                            <Link
+                                                style={styles.linkStyle}
+                                                href={"https://ownerchip.com/certificates"}
+                                            > www.ownerchip.com/certificates </Link>
+                                        </Text>
                                     </View>
                                 </View>
                             </View>
