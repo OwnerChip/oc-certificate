@@ -239,7 +239,7 @@ interface TraitData {
     value: string
 }
 
-const descriptionLimitLines = 20;
+const descriptionLimitLines = 16;
 const traitRowMaxChars = 30;
 const traitMaxLines = 3;
 
