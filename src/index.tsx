@@ -398,8 +398,8 @@ export const CertificateDocument = (data: {
                             Certificate of Authenticity
                         </Text>
                         <Text style={styles.subtitle}>
-                            This is a copy of the digital certificate that was created on the Blockchain by a registered
-                            certifier to prove authenticity of the physical item. You can authenticate this copy by
+                            This is a copy of the digital certificate that was created onchain by a registered certifier
+                            to prove authenticity of the physical item. You can authenticate this copy by
                             tapping the NFC chip on the item using your smartphone device.
                         </Text>
                     </View>
