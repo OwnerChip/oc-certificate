@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         color: 'gray',
-        opacity: 0.15,
+        opacity: 0.25,
         fontSize: 180,
         fontFamily: 'Ubuntu',
         transform: "rotate(-45deg)",
