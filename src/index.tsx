@@ -395,7 +395,7 @@ export const CertificateDocument = (data: {
                 <View style={styles.pageSection}>
                     <View style={styles.titleSection}>
                         <Text style={styles.title}>
-                            Certificate of Authenticity
+                            Certificate
                         </Text>
                         <Text style={styles.subtitle}>
                             This is a copy of the digital certificate that was created onchain by a registered certifier
