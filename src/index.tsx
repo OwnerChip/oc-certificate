@@ -1,9 +1,14 @@
 import * as React from 'react';
 
-import {Document, G, Image, Link, Page, Path, StyleSheet, Svg, Text, View} from '@react-pdf/renderer';
-import {BulkLoad, SingleLoad} from "@react-pdf/types/font";
+import {Document, Font, G, Image, Link, Page, Path, StyleSheet, Svg, Text, View} from '@react-pdf/renderer';
 
-export const getFonts = (): Array<SingleLoad | BulkLoad> => {
+/**
+ * Derived from the renderer rather than an internal types path, so it tracks
+ * whichever version the consumer has installed.
+ */
+type FontRegistration = Parameters<typeof Font.register>[0];
+
+export const getFonts = (): FontRegistration[] => {
     return [
         {
             family: "Ubuntu",
